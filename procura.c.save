@@ -1,0 +1,78 @@
+#include <stdio.h>
+#include <string.h>
+/*#include <ncurses.h>*/
+#include "mpi.h"
+
+int main() {
+    /*Variáveis de contagem*/
+    int numPalavras = 0, i;
+    int tamanhoArquivo=0, tamanhoPalavra =0;
+    /*Variaveis MPI*/
+    int ret, rank, size, tag;
+    MPI_Status status;
+
+    FILE *arquivo;
+    /*Variável que armazena caracter para processamento*/
+    char str[20];busca
+
+    ret = MPI_Init(&argc, &argv);
+    ret = MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    ret = MPI_Comm_size(MPI_COMM_WORLD, &size);
+    tag=100;
+
+if (rank == 0){
+    printf("   *** Busca Arquivo *** \n");
+    printf("Digite a palavra a ser procurada: ");
+    scanf("%s",busca);
+    getchar();
+
+    for (i = 0; busca[i] != '\0';i++){ /*busca[i] != "\ 0"*/
+    tamanhoPalavra = i+1;    /*tamanho da palavra a ser buscada*/
+    };
+    printf("\nA Palavra tem %d caracteres\n",tamanhoPalavra);
+
+    if((arquivo = fopen("texto.txt","r")) == NULL){
+    printf("\n\nERRO AO ABRIR O ARQUIVO\n");
+    }
+    else{
+        numPalavras = 0;
+    fseek (arquivo, 0, SEEK_END);
+    tamanhoArquivo = ftell(arquivo);
+    printf("O arquivo tem %d caracteres",tamanhoArquivo);
+    fseek(arquivo,0,SEEK_SET);
+    getchar();
+    /*printf("Hora Inicio ");*/
+        while (!feof(arquivo)){
+        i=ftell(arquivo);
+        /*if ((i%100000) == 0){
+            printf("%d de %d - Palavras encontradas: %d \n",i,tamanhoArquivo, numPalavras);
+        }*/
+        fgets(str,tamanhoPalavra+1,arquivo); /*lê a qtd de caractetes da palavra a ser buscada*/
+        /*printf("\n%s",str);*/
+        if (strstr(str,busca)!=NULL){        /*Ve se a string busca existe dentro da string str*/
+            numPalavras++;
+            fseek(arquivo,0,SEEK_CUR);
+        }else{
+            if (!feof(arquivo)){
+                /*Captura fim do arquivo*/
+                if ((ftell(arquivo) < tamanhoArquivo)){
+                    fseek(arquivo,(tamanhoPalavra*(-1))+1,SEEK_CUR);
+                }
+                if(strstr(str,"\n")!=NULL){
+                    /*Captura Quebra de linha*/
+                    fseek(arquivo,tamanhoPalavra -1,SEEK_CUR);
+                }
+            }
+        }
+    }
+
+        fclose(arquivo);
+	ret = MPI_Finalize();
+        printf("\n O numero de palavras do encontradas foi: %d\n", numPalavras);
+        getch();
+    }
+    return 0;
+}
+}
+
+
